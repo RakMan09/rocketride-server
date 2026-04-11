@@ -6,10 +6,7 @@
  */
 
 const path = require('path');
-const {
-    execCommand,
-    PROJECT_ROOT, DIST_ROOT,
-} = require('../../scripts/lib');
+const { execCommand, PROJECT_ROOT, DIST_ROOT } = require('../../scripts/lib');
 
 const TOOLS_SRC = path.join(__dirname, '..', 'src', 'sync_models.py');
 const NODES_GLOB = path.join(PROJECT_ROOT, 'nodes', 'src', 'nodes', '**', '*.json');
@@ -30,7 +27,7 @@ function makeRunSyncModelsAction(options = {}) {
             // Collect args from --models="..." flags (can be repeated; each value
             // is split on whitespace so --models="--all --apply" works).
             const modelsOpts = options.models || [];
-            const extraArgs = modelsOpts.flatMap(o => String(o).split(/\s+/).filter(Boolean));
+            const extraArgs = modelsOpts.flatMap((o) => String(o).split(/\s+/).filter(Boolean));
 
             task.output = `Running sync_models ${extraArgs.join(' ')}`.trim();
 
@@ -39,7 +36,7 @@ function makeRunSyncModelsAction(options = {}) {
                 cwd: PROJECT_ROOT,
                 env: { ...process.env },
             });
-        }
+        },
     };
 }
 
@@ -48,17 +45,13 @@ function makePrettierAction() {
         run: async (_ctx, task) => {
             task.output = 'Formatting services.json files...';
 
-            await execCommand('npx', [
-                'prettier',
-                '--write',
-                NODES_GLOB,
-            ], {
+            await execCommand('npx', ['prettier', '--write', NODES_GLOB], {
                 task,
                 cwd: PROJECT_ROOT,
             });
 
             task.output = 'Formatted';
-        }
+        },
     };
 }
 
@@ -76,9 +69,12 @@ module.exports = {
         { name: 'models:prettier', action: makePrettierAction },
 
         // Public action
-        { name: 'models:update', action: () => ({
-            description: 'Sync LLM model lists from provider APIs and format JSON files',
-            steps: ['models:run-sync', 'models:prettier'],
-        })},
-    ]
+        {
+            name: 'models:update',
+            action: () => ({
+                description: 'Sync LLM model lists from provider APIs and format JSON files',
+                steps: ['models:run-sync', 'models:prettier'],
+            }),
+        },
+    ],
 };
